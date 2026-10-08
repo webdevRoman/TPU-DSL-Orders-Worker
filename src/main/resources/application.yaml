@@ -1,0 +1,78 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /api/orders-worker
+
+spring:
+  application:
+    name: orders-worker
+  web:
+    error:
+      include-message: always
+      include-exception: true
+      include-binding-errors: always
+
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/orders_db
+    username: postgres
+    password: postgres
+    hikari:
+      maximum-pool-size: 2
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        generate_statistics: false
+        jdbc.batch_size: 10
+        order_inserts: true
+        order_updates: true
+        jdbc.batch_versioned_data: true
+        query.fail_on_pagination_over_collection_fetch: true
+      jakarta.persistence.validation.mode: none
+
+  rabbitmq:
+    addresses: localhost:5672
+    virtual-host: /
+    ssl:
+      enabled: false
+      algorithm: TLSv1.2
+      verify-hostname: true
+      key-store: file:${RABBITMQ_SSL_KEYSTORE_LOCATION}
+      key-store-password: ${RABBITMQ_SSL_KEYSTORE_PASSWORD}
+      trust-store: file:${TRUSTSTORE_LOCATION}
+      trust-store-password: ${TRUSTSTORE_PASSWORD}
+
+  cloud:
+    stream:
+      bindings:
+        orderCreatedConsumer-in-0:
+          destination: evt.order.created
+          group: ${spring.application.name}
+    function:
+      definition: orderCreatedConsumer
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    tags-sorter: alpha
+    operations-sorter: method
+
+logging:
+  level:
+    root: INFO
+    ru.rgrabelnikov.ordersworker: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, health, loggers
+  info:
+    git:
+      mode: full
