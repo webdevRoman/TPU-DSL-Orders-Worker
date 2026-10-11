@@ -80,4 +80,4 @@ management:
         enabled: true
 
 event-handler:
-  processing-delay-ms: 5000
+  processing-delay-ms: 2000
