@@ -36,7 +36,7 @@ WORKDIR /app
 RUN mkdir -p /app/logs && chown -R app:app /app
 COPY --from=dev --chown=app:app /workspace/app.jar /app/app.jar
 
-EXPOSE 8081
+EXPOSE 8082
 
 USER app
 
